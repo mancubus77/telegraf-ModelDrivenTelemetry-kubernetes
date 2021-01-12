@@ -1,0 +1,32 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: telegraf-config
+data:
+  telegraf.conf: |
+      [global_tags]
+      [agent]
+        omit_hostname = true
+      # [[outputs.influxdb_v2]]
+      #   urls = ["http://vminsert-example-vmcluster-persistent.monitoring-system.svc.cluster.local:8480/insert/0/influx/"]
+      [[outputs.kafka]]
+        ## URLs of kafka brokers
+        brokers = ["my-cluster-kafka-brokers.kafka.svc.cluster.local:9092"]
+        ## Kafka topic for producer messages
+        topic = "topic"
+        data_format = "influx"
+
+      # [[inputs.kafka_consumer]]
+      #   ## URLs of kafka brokers
+      #   brokers = ["my-cluster-kafka-brokers.kafka.svc.cluster.local:9092"]
+      #   ## Kafka topic for producer messages
+      #   topics = ["topic"]
+      #   data_format = "influx"
+
+      [[inputs.cisco_telemetry_mdt]]
+      transport = "tcp"
+      service_address = ":50051"
+      [inputs.cisco_telemetry_mdt.aliases]
+        ifstats = "Cisco-IOS-XR-infra-statsd-oper:infra-statistics/interfaces/interface/latest/generic-counters"
+      [[inputs.internal]]

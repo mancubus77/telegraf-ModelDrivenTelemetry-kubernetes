@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegraf
+spec:
+  selector:
+    matchLabels:
+      app: telegraf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: telegraf
+        version: v1
+    spec:
+      containers:
+        - name: telegraf
+          image: 'image-registry.openshift-image-registry.svc:5000/telegraf/telegraf:latest'
+          ports:
+            - containerPort: 50051
+            # command: [ "/bin/bash", "-c", "--" ]
+          args: 
+            - --config=/app/telegraf.conf
+            - --debug
+          volumeMounts:
+            - name: telegraf-config-volume
+              mountPath: /app/telegraf.conf
+              subPath: telegraf.conf
+          env:
+          - name: GREETING
+            value: "Warm greetings to"
+          - name: HONORIFIC
+            value: "The Most Honorable"
+          - name: NAME
+            value: "Kubernetes"
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: 250m
+            # requests:
+            #   memory: 256Mi
+            #   cpu: 250m
+      volumes:
+        - name: telegraf-config-volume
+          configMap:
+            name: telegraf-config
+      restartPolicy: Always

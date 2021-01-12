@@ -1,0 +1,14 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: telegraf-service
+spec:
+  selector:
+    app: telegraf
+  ports:
+  - name: telegraf-in
+    protocol: TCP
+    port: 50051
+    targetPort: 50051
+  type: LoadBalancer

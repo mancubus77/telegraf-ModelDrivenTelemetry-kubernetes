@@ -1,0 +1,36 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: "telemetry-telegraf" 
+spec:
+  runPolicy: "Serial" 
+  triggers: 
+    - type: "ConfigChange"
+    - type: ImageChange
+  source: 
+    type: Dockerfile
+    dockerfile: |-
+        FROM golang as builder
+        RUN apt-get update && apt-get install git make gcc linux-libc-dev\
+            && mkdir -p /build/telegraf
+
+        WORKDIR /build/telegraf
+        RUN git clone --branch release-1.17 https://github.com/influxdata/telegraf.git /build/telegraf/ \
+            && make
+
+        FROM golang
+        RUN mkdir -p /app \
+            && mkdir -p /data \
+            && apt-get update && apt-get install gcc 
+        WORKDIR /app
+        COPY --from=builder /build/telegraf/telegraf .
+        ENTRYPOINT ["/app/telegraf"]
+
+    contextDir: /
+  strategy: 
+    type: Docker
+    dockerStrategy: {}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'telegraf:latest'
