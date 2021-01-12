@@ -1,0 +1,16 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: telegraf
+spec:
+  host: telegraf50501.apps.ocp4.rhpg.org
+  path: /
+  to:
+    kind: Service
+    name: telegraf-service
+  port:
+    targetPort: 50501
+  tls:
+    termination: reencrypt
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
